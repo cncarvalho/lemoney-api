@@ -3,8 +3,9 @@ require 'rails_helper'
 RSpec.describe '#POST create', type: :request do
   context 'when the offer is successfully created' do
     before do
+      @account = create(:account, is_admin: true)
       @offer_attributes = attributes_for(:offer)
-      post offers_path, params: { offer: @offer_attributes }
+      post offers_path, params: { offer: @offer_attributes }, headers: @account.create_new_auth_token
       @json_response = JSON.parse(response.body, symbolize_names: true)
     end
 
@@ -38,8 +39,9 @@ RSpec.describe '#POST create', type: :request do
 
   context 'when the request rises a validation error' do
     before do
+      @account = create(:account, is_admin: true)
       @offer_attributes = attributes_for(:offer, advertiser_name: nil, url: nil)
-      post offers_path, params: { offer: @offer_attributes }
+      post offers_path, params: { offer: @offer_attributes }, headers: @account.create_new_auth_token
       @json_response = JSON.parse(response.body, symbolize_names: true)
     end
 
@@ -57,6 +59,37 @@ RSpec.describe '#POST create', type: :request do
       expect(@json_response[:data][:errors][0][:messages]).to include("Must be a valid URI")
       expect(@json_response[:data][:errors][1][:field]).to eq('advertiser_name')
       expect(@json_response[:data][:errors][1][:messages]).to include("can't be blank")
+    end
+  end
+
+  context 'when a unauthorized user tries to access this route' do
+    before do
+      @account = create(:account, is_admin: false)
+      @offer_attributes = attributes_for(:offer)
+      post offers_path, params: { offer: @offer_attributes }, headers: @account.create_new_auth_token
+    end
+
+    it 'returns a forbidden response code' do
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'does not execute any further operation' do
+      expect_any_instance_of(CreateOfferCommand).not_to receive(:execute)
+    end
+  end
+
+  context 'when a unauthenticated user tries to access this route' do
+    before do
+      @offer_attributes = attributes_for(:offer)
+      post offers_path, params: { offer: @offer_attributes }
+    end
+
+    it 'returns a forbidden response code' do
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'does not execute any further operation' do
+      expect_any_instance_of(CreateOfferCommand).not_to receive(:execute)
     end
   end
 

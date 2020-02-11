@@ -1,4 +1,6 @@
 class OffersController < ApplicationController
+  before_action :require_admin_access!, only: [:create]
+
   def create
     record = CreateOfferCommand.new(filter_create_attributes).execute
     render json: OfferSerializer.new(record).serialized_json
