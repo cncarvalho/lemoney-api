@@ -12,11 +12,15 @@ RSpec.describe '#POST create', type: :request do
       expect(response).to be_successful
     end
 
-    it 'returns a json object containing the data from the created record' do
-      assert_attribute_presence(:id)
-      assert_attribute_presence(:created_at)
-      assert_attribute_presence(:updated_at)
+    it 'returns the id of the created record inside the json response' do
+      expect(@json_response[:data][:id]).to be_present
+    end
 
+    it 'returns the type of the created record inside the json response' do
+      expect(@json_response[:data][:type]).to eq('offer')
+    end
+
+    it 'returns the attributes of the created record inside the json response' do
       assert_attribute_value(:advertiser_name)
       assert_attribute_value(:available)
       assert_attribute_value(:description)
@@ -25,16 +29,17 @@ RSpec.describe '#POST create', type: :request do
       assert_attribute_value(:starts_at)
       assert_attribute_value(:url)
     end
+
+    it 'returns the timestamps of the created record inside the json response' do
+      expect(@json_response[:data][:attributes][:created_at]).to be_present
+      expect(@json_response[:data][:attributes][:updated_at]).to be_present
+    end
   end
 
   private
 
-  def assert_attribute_presence(attribute_name)
-    expect(@json_response[attribute_name]).not_to be_nil
-  end
-
   def assert_attribute_value(attribute_name)
-    attribute_value = @json_response[attribute_name]
+    attribute_value = @json_response[:data][:attributes][attribute_name]
     expected_value = @offer_attributes[attribute_name].as_json
 
     expect(attribute_value).to eq expected_value

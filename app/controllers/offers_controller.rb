@@ -1,7 +1,7 @@
 class OffersController < ApplicationController
   def create
-    @record = CreateOfferCommand.new(filter_create_attributes).execute
-    render json: @record.to_json
+    record = CreateOfferCommand.new(filter_create_attributes).execute
+    render json: OfferSerializer.new(record).serialized_json
   end
 
   private
