@@ -1,13 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe '#POST create', type: :request do
-  before do
-    @offer_attributes = attributes_for(:offer)
-    post offers_path, params: { offer: @offer_attributes }
-    @json_response = JSON.parse(response.body, symbolize_names: true)
-  end
-
   context 'when the offer is successfully created' do
+    before do
+      @offer_attributes = attributes_for(:offer)
+      post offers_path, params: { offer: @offer_attributes }
+      @json_response = JSON.parse(response.body, symbolize_names: true)
+    end
+
     it 'returns a successful response code' do
       expect(response).to be_successful
     end
@@ -33,6 +33,30 @@ RSpec.describe '#POST create', type: :request do
     it 'returns the timestamps of the created record inside the json response' do
       expect(@json_response[:data][:attributes][:created_at]).to be_present
       expect(@json_response[:data][:attributes][:updated_at]).to be_present
+    end
+  end
+
+  context 'when the request rises a validation error' do
+    before do
+      @offer_attributes = attributes_for(:offer, advertiser_name: nil, url: nil)
+      post offers_path, params: { offer: @offer_attributes }
+      @json_response = JSON.parse(response.body, symbolize_names: true)
+    end
+
+    it 'returns an unprocessable entity response code' do
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'returns the type of the invalid record inside the json response' do
+      expect(@json_response[:data][:type]).to eq('offer')
+    end
+
+    it 'returns the relations of invalid fields inside the json response' do
+      expect(@json_response[:data][:errors][0][:field]).to eq('url')
+      expect(@json_response[:data][:errors][0][:messages]).to include("can't be blank")
+      expect(@json_response[:data][:errors][0][:messages]).to include("Must be a valid URI")
+      expect(@json_response[:data][:errors][1][:field]).to eq('advertiser_name')
+      expect(@json_response[:data][:errors][1][:messages]).to include("can't be blank")
     end
   end
 
