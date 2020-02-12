@@ -1,9 +1,14 @@
 class OffersController < ApplicationController
-  before_action :require_admin_access!, only: [:create]
+  before_action :require_admin_access!, only: %i[create destroy]
 
   def create
     record = CreateOfferCommand.new(filter_create_attributes).execute
-    render json: OfferSerializer.new(record).serialized_json
+    render json: OfferSerializer.new(record).serialized_json, status: :created
+  end
+
+  def destroy
+    DeleteOfferCommand.new(params[:id]).execute
+    render json: nil, status: :no_content
   end
 
   private
