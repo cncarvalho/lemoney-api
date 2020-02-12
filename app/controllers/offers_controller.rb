@@ -11,6 +11,11 @@ class OffersController < ApplicationController
     render json: nil, status: :no_content
   end
 
+  def index
+    records = ListOffersCommand.new.execute
+    render json: OfferSerializer.new(records).serialized_json, status: :ok
+  end
+
   def update
     record = UpdateOfferCommand.new(params[:id], filter_permitted_attributes).execute
     render json: OfferSerializer.new(record).serialized_json, status: :ok
