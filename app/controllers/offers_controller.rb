@@ -1,8 +1,8 @@
 class OffersController < ApplicationController
-  before_action :require_admin_access!, only: %i[create destroy]
+  before_action :require_admin_access!, only: %i[create destroy update]
 
   def create
-    record = CreateOfferCommand.new(filter_create_attributes).execute
+    record = CreateOfferCommand.new(filter_permitted_attributes).execute
     render json: OfferSerializer.new(record).serialized_json, status: :created
   end
 
@@ -11,10 +11,18 @@ class OffersController < ApplicationController
     render json: nil, status: :no_content
   end
 
+  def update
+    record = UpdateOfferCommand.new(params[:id], filter_permitted_attributes).execute
+    render json: OfferSerializer.new(record).serialized_json, status: :ok
+  end
+
   private
 
-  def filter_create_attributes
-    permitted_params = %i[advertiser_name available description ends_at premium starts_at url]
-    params.require(:offer).permit(permitted_params)
+  def filter_permitted_attributes
+    params.require(:offer).permit(list_permitted_params)
+  end
+
+  def list_permitted_params
+    %i[advertiser_name available description ends_at premium starts_at url]
   end
 end
