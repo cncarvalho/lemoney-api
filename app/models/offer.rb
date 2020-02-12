@@ -1,4 +1,6 @@
 class Offer < ApplicationRecord
+  has_one_attached :image
+
   scope :available, -> { where(available: true) }
   scope :not_expired, -> { where('ends_at > ? or ends_at IS NULL', Date.today) }
   scope :started, -> { where('starts_at <= ?', Date.today) }
