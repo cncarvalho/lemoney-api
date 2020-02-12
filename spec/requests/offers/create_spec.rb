@@ -9,8 +9,8 @@ RSpec.describe '#POST create', type: :request do
       @json_response = JSON.parse(response.body, symbolize_names: true)
     end
 
-    it 'returns a successful response code' do
-      expect(response).to be_successful
+    it 'returns a created HTTP status code' do
+      expect(response).to have_http_status(:created)
     end
 
     it 'returns the id of the created record inside the json response' do
