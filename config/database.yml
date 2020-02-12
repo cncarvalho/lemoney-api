@@ -16,4 +16,5 @@ test:
 
 production:
   <<: *default
-  database: lemoney_production
+  database: <%= Rails.application.credentials.database[:database] %>
+  host: <%= Rails.application.credentials.database[:host] %>
