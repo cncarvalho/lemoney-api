@@ -1,5 +1,5 @@
 class OffersController < ApplicationController
-  before_action :require_admin_access!, only: %i[create destroy update]
+  #before_action :require_admin_access!, only: %i[create destroy update]
 
   def create
     record = CreateOfferCommand.new(filter_permitted_attributes).execute
