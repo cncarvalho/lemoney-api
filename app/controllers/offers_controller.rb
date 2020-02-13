@@ -16,6 +16,11 @@ class OffersController < ApplicationController
     render json: OfferSerializer.new(records).serialized_json, status: :ok
   end
 
+  def show
+    record = FetchOfferCommand.new(params[:id]).execute
+    render json: OfferSerializer.new(record).serialized_json, status: :ok
+  end
+
   def update
     record = UpdateOfferCommand.new(params[:id], filter_permitted_attributes).execute
     render json: OfferSerializer.new(record).serialized_json, status: :ok
