@@ -12,7 +12,7 @@ class OffersController < ApplicationController
   end
 
   def index
-    records = ListOffersCommand.new.execute
+    records = ListOffersCommand.new(params[:fetch_all]).execute
     render json: OfferSerializer.new(records).serialized_json, status: :ok
   end
 
