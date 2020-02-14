@@ -12,8 +12,13 @@ class OffersController < ApplicationController
   end
 
   def index
-    records = ListOffersCommand.new.execute
+    records = ListOffersCommand.new(params[:fetch_all]).execute
     render json: OfferSerializer.new(records).serialized_json, status: :ok
+  end
+
+  def show
+    record = FetchOfferCommand.new(params[:id]).execute
+    render json: OfferSerializer.new(record).serialized_json, status: :ok
   end
 
   def update
@@ -28,6 +33,6 @@ class OffersController < ApplicationController
   end
 
   def list_permitted_params
-    %i[advertiser_name available description ends_at premium starts_at url]
+    %i[advertiser_name available description ends_at premium starts_at url image]
   end
 end
