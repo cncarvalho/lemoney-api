@@ -4,7 +4,7 @@ RSpec.describe '#POST create', type: :request do
   context 'when the offer is successfully created' do
     before do
       @account = create(:account, is_admin: true)
-      @offer_attributes = attributes_for(:offer)
+      @offer_attributes = attributes_for(:offer, image: read_image_file)
       post offers_path, params: { offer: @offer_attributes }, headers: @account.create_new_auth_token
       @json_response = JSON.parse(response.body, symbolize_names: true)
     end
@@ -34,6 +34,10 @@ RSpec.describe '#POST create', type: :request do
     it 'returns the timestamps of the created record inside the json response' do
       expect(@json_response[:data][:attributes][:created_at]).to be_present
       expect(@json_response[:data][:attributes][:updated_at]).to be_present
+    end
+
+    it 'returns the link of the image' do
+      expect(@json_response[:data][:links][:image]).to be_present
     end
   end
 
@@ -100,5 +104,10 @@ RSpec.describe '#POST create', type: :request do
     expected_value = @offer_attributes[attribute_name].as_json
 
     expect(attribute_value).to eq expected_value
+  end
+
+  def read_image_file
+    image_path = Rails.root.join('spec', 'support', 'images', 'image.png')
+    Rack::Test::UploadedFile.new(image_path)
   end
 end

@@ -1,5 +1,5 @@
 class OffersController < ApplicationController
-  #before_action :require_admin_access!, only: %i[create destroy update]
+  before_action :require_admin_access!, only: %i[create destroy update]
 
   def create
     record = CreateOfferCommand.new(filter_permitted_attributes).execute
@@ -33,6 +33,6 @@ class OffersController < ApplicationController
   end
 
   def list_permitted_params
-    %i[advertiser_name available description ends_at premium starts_at url]
+    %i[advertiser_name available description ends_at premium starts_at url image]
   end
 end
