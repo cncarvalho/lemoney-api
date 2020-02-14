@@ -20,7 +20,7 @@ RSpec.describe ListOffersCommand do
 
     context 'when the ends_at field value of an offer is in the future' do
       before do
-        @offer = create(:offer, ends_at: 2.days.from_now)
+        @offer = create(:offer, ends_at: Date.today + 2.days)
       end
 
       it 'returns the offer in the result set' do
@@ -41,7 +41,7 @@ RSpec.describe ListOffersCommand do
 
     context 'when the starts_at field value of an offer is in the future' do
       before do
-        create(:offer, advertiser_name: 'starts in 2 days', starts_at: 2.days.from_now)
+        create(:offer, advertiser_name: 'starts in 2 days', starts_at: Date.today + 2.days)
       end
 
       it 'does not returns the offer in the result set' do
@@ -64,7 +64,7 @@ RSpec.describe ListOffersCommand do
     context 'when the value of the available field of an offer is true' do
       context 'and the offer has not expired yet' do
         before do
-          @offer = create(:offer, ends_at: 1.day.from_now)
+          @offer = create(:offer, ends_at: Date.today + 1.day)
         end
 
         it 'returns the offer in the result set' do
@@ -85,11 +85,47 @@ RSpec.describe ListOffersCommand do
 
     context 'when the value of the available field of an offer is false' do
       before do
-        @offer = create(:offer, ends_at: 1.day.from_now, available: false)
+        @offer = create(:offer, ends_at: Date.today + 1.day, available: false)
       end
 
       it 'does not returns the offer in the result set even if the dates permits' do
         expect(subject).to be_empty
+      end
+    end
+
+    context 'when there are multiple offers created in different dates' do
+      before do
+        @offer_created_yesterday = create(:offer, advertiser_name: 'offer 1', created_at: Date.today - 1.day)
+        @offer_created_today = create(:offer, advertiser_name: 'offer 2', created_at: Date.today)
+        @offer_created_tomorrow = create(:offer, advertiser_name: 'offer 3', created_at: Date.today + 1.day)
+      end
+
+      it 'returns the records ordered from newest to oldest' do
+        expect(subject[0]).to eq(@offer_created_tomorrow)
+        expect(subject[1]).to eq(@offer_created_today)
+        expect(subject[2]).to eq(@offer_created_yesterday)
+      end
+    end
+
+    context 'when no search filters are applied' do
+      let(:command) { ListOffersCommand.new(true) }
+
+      subject { command.execute }
+
+      before do
+        @offer = create(:offer, created_at: Date.today - 3.day)
+        @offer_expired = create(:offer, advertiser_name: 'offer expired', ends_at: Date.today - 2.days, created_at: Date.today - 2.day)
+        @offer_unavailable = create(:offer, advertiser_name: 'offer unavailable', available: false, created_at: Date.today - 1.day)
+      end
+
+      it 'returns all the offers from the database' do
+        expect(subject.size).to be(3)
+      end
+
+      it 'returns the records ordered from newest to oldest' do
+        expect(subject[0]).to eq(@offer_unavailable)
+        expect(subject[1]).to eq(@offer_expired)
+        expect(subject[2]).to eq(@offer)
       end
     end
   end

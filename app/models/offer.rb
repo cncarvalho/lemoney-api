@@ -4,6 +4,7 @@ class Offer < ApplicationRecord
   scope :available, -> { where(available: true) }
   scope :not_expired, -> { where('ends_at > ? or ends_at IS NULL', Date.today) }
   scope :started, -> { where('starts_at <= ?', Date.today) }
+  scope :newest, -> { order(created_at: :desc) }
 
   validates :url, uri: true
   validates_length_of :description, maximum: 500
