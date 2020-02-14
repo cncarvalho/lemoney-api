@@ -57,3 +57,5 @@ Rails.application.configure do
     end
   end
 end
+
+Rails.application.routes.default_url_options[:host] = 'localhost:3001'

@@ -31,7 +31,7 @@ RSpec.describe ListOffersCommand do
     context 'when the ends_at field value of an offer is in the past' do
       before do
         create(:offer, advertiser_name: 'expired today', ends_at: Date.today)
-        create(:offer, advertiser_name: 'expired 2 days ago', ends_at: 2.days.ago)
+        create(:offer, advertiser_name: 'expired 2 days ago', ends_at: Date.today - 2.days)
       end
 
       it 'does not returns the offer in the result set' do
@@ -52,7 +52,7 @@ RSpec.describe ListOffersCommand do
     context 'when the starts_at field value of an offer is in the past' do
       before do
         @offer_started_today = create(:offer, advertiser_name: 'started today', starts_at: Date.today)
-        @offer_started_yesterday = create(:offer, advertiser_name: 'started_yesterday', starts_at: 1.day.ago)
+        @offer_started_yesterday = create(:offer, advertiser_name: 'started_yesterday', starts_at: Date.today - 1.day)
       end
 
       it 'returns the offer in the result set' do
@@ -74,7 +74,7 @@ RSpec.describe ListOffersCommand do
 
       context 'but the offer has expired' do
         before do
-          @offer = create(:offer, ends_at: 1.day.ago)
+          @offer = create(:offer, ends_at: Date.today - 1.day)
         end
 
         it 'does not returns the offer in the result set' do

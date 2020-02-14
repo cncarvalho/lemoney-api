@@ -38,6 +38,20 @@ RSpec.describe '#GET show', type: :request do
     end
   end
 
+  context 'when the offer has a image attached' do
+    before do
+      @offer = create(:offer, image: read_image_file)
+
+      get offer_path(@offer.id)
+
+      @json_response = JSON.parse(response.body, symbolize_names: true)
+    end
+
+    it 'returns the link of the image' do
+      expect(@json_response[:data][:links][:image]).to be_present
+    end
+  end
+
   private
 
   def assert_attribute_value(attribute_name)
@@ -45,5 +59,10 @@ RSpec.describe '#GET show', type: :request do
     expected_value = @offer[attribute_name].as_json
 
     expect(attribute_value).to eq expected_value
+  end
+
+  def read_image_file
+    image_path = Rails.root.join('spec', 'support', 'images', 'image.png')
+    Rack::Test::UploadedFile.new(image_path)
   end
 end
