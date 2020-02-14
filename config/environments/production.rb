@@ -105,7 +105,7 @@ Rails.application.configure do
 
   config.middleware.insert_before 0, Rack::Cors do
     allow do
-      origins 'http://lemoney-admin.herokuapp.com'
+      origins 'https://lemoney-app.herokuapp.com'
       resource '*',
                headers: :any,
                expose: %w[access-token expiry token-type uid client],
